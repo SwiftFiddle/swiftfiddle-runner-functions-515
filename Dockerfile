@@ -1,4 +1,4 @@
-FROM swift:5.9.1
+FROM swift:5.1.5
 
 # Install Deno
 RUN apt-get -qq update \
