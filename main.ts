@@ -1,4 +1,4 @@
-import { mergeReadableStreams, router } from "./deps.ts";
+import { router, zipReadableStreams } from "./deps.ts";
 
 Deno.serve(
   { port: 8000 },
@@ -59,7 +59,7 @@ async function runOutput(parameters: RequestParameters): Promise<Response> {
 
 function runStream(parameters: RequestParameters): Response {
   return new Response(
-    mergeReadableStreams(
+    zipReadableStreams(
       spawn(makeVersionCommand(), "version", "version"),
       spawn(makeSwiftCommand(parameters), "stdout", "stderr"),
     ),
@@ -77,7 +77,7 @@ function spawn(
   stderrKey: string,
 ): ReadableStream<Uint8Array> {
   const process = command.spawn();
-  return mergeReadableStreams(
+  return zipReadableStreams(
     makeStreamResponse(process.stdout, stdoutKey),
     makeStreamResponse(process.stderr, stderrKey),
   );
@@ -109,9 +109,11 @@ function makeSwiftCommand(
     : undefined;
 
   return new Deno.Command(
-    "sh",
+    "stdbuf",
     {
       args: [
+        "-o0",
+        "sh",
         "-c",
         `echo '${parameters.code}' | timeout ${timeout} ${command} ${options} -`,
       ],
