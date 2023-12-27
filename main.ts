@@ -113,8 +113,8 @@ function makeSwiftCommand(
     {
       args: [
         "-i0",
-        "-o0",
-        "-e0",
+        "-oL",
+        "-eL",
         "sh",
         "-c",
         `echo '${parameters.code}' | timeout ${timeout} ${command} ${options} -`,
