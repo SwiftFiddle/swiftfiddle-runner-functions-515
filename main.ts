@@ -76,7 +76,7 @@ function spawn(
   input: string | undefined,
   stdoutKey: string,
   stderrKey: string,
-): Promise<ReadableStream<Uint8Array>> {
+): ReadableStream<Uint8Array> {
   const process = command.spawn();
 
   if (input) {
