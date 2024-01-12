@@ -117,6 +117,7 @@ function makeSwiftCommand(
       "LD_PRELOAD": "./faketty.so",
     }
     : undefined;
+  const flags = options.split(" ");
 
   return new Deno.Command(
     "stdbuf",
@@ -125,7 +126,11 @@ function makeSwiftCommand(
         "-i0",
         "-oL",
         "-eL",
-        `timeout ${timeout} ${command} ${options} -`,
+        "timeout",
+        `${timeout}`,
+        command,
+        ...flags,
+        "-",
       ],
       env: env,
       stdout: "piped",
