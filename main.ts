@@ -60,8 +60,8 @@ async function runOutput(parameters: RequestParameters): Promise<Response> {
 function runStream(parameters: RequestParameters): Response {
   return new Response(
     zipReadableStreams(
-      spawn(makeVersionCommand(), "version", "version"),
-      spawn(makeSwiftCommand(parameters), "stdout", "stderr"),
+      spawn(makeVersionCommand(), undefined, "version", "version"),
+      spawn(makeSwiftCommand(parameters), parameters.code, "stdout", "stderr"),
     ),
     {
       headers: {
@@ -71,12 +71,22 @@ function runStream(parameters: RequestParameters): Response {
   );
 }
 
-function spawn(
+async function spawn(
   command: Deno.Command,
+  input: string | undefined,
   stdoutKey: string,
   stderrKey: string,
-): ReadableStream<Uint8Array> {
+): Promise<ReadableStream<Uint8Array>> {
   const process = command.spawn();
+
+  if (input) {
+    const stdin = process.stdin;
+    const writer = stdin.getWriter();
+    await writer.write(new TextEncoder().encode(input));
+    writer.releaseLock();
+    stdin.close();
+  }
+
   return mergeReadableStreams(
     makeStreamResponse(process.stderr, stderrKey),
     makeStreamResponse(process.stdout, stdoutKey),
@@ -115,9 +125,7 @@ function makeSwiftCommand(
         "-i0",
         "-oL",
         "-eL",
-        "sh",
-        "-c",
-        `echo '${parameters.code}' | timeout ${timeout} ${command} ${options} -`,
+        `timeout ${timeout} ${command} ${options} -`,
       ],
       env: env,
       stdout: "piped",
