@@ -71,7 +71,7 @@ function runStream(parameters: RequestParameters): Response {
   );
 }
 
- function spawn(
+function spawn(
   command: Deno.Command,
   input: string | undefined,
   stdoutKey: string,
@@ -82,7 +82,7 @@ function runStream(parameters: RequestParameters): Response {
   if (input) {
     const stdin = process.stdin;
     const writer = stdin.getWriter();
-     writer.write(new TextEncoder().encode(input));
+    writer.write(new TextEncoder().encode(input));
     writer.releaseLock();
     stdin.close();
   }
@@ -117,14 +117,13 @@ function makeSwiftCommand(
       "LD_PRELOAD": "./faketty.so",
     }
     : undefined;
-    const args = [
-        "-i0",
-        "-oL",
-        "-eL",
-        "timeout",
-        `${timeout}`,
-        command,
-    
+  const args = [
+    "-i0",
+    "-oL",
+    "-eL",
+    "timeout",
+    `${timeout}`,
+    command,
   ];
   if (options) {
     args.push(...options.split(" "));
