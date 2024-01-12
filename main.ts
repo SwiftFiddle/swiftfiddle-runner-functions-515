@@ -108,8 +108,6 @@ function makeSwiftCommand(
     }
     : undefined;
 
-  const flags = options.split(" ");
-
   return new Deno.Command(
     "stdbuf",
     {
@@ -117,12 +115,9 @@ function makeSwiftCommand(
         "-i0",
         "-oL",
         "-eL",
-        "timeout",
-        `${timeout}`,
-        command,
-        "-e",
-        `${parameters.code}`,
-        ...flags,
+        "sh",
+        "-c",
+        `echo '${parameters.code}' | timeout ${timeout} ${command} ${options} -`,
       ],
       env: env,
       stdout: "piped",
